@@ -1,0 +1,9 @@
+.venv/
+.venv-windows/
+.venv-linux/
+__pycache__/
+.pytest_cache/
+data/*.sqlite3
+data/*.sqlite3-*
+*.pyc
+models/

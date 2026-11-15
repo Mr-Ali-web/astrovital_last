@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>AstroMed 0.4.0 · Offline Crew Medical Support</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="/static/app.js" defer></script>
+  <script src="/static/ai_panel.js" defer></script>
+</head>
+<body class="ai-open">
+<div class="shell">
+  <aside class="side">
+    <div class="mobile-brand"><div class="logo"><span class="logo-symbol">✦</span><div>ASTRO<span class="accent">MED</span><small>MISSION HEALTH SYSTEM</small></div></div><button id="mobileMenuButton" class="mobile-menu-button" type="button" aria-controls="mainNav" aria-expanded="false" aria-label="Menyuni ochish">☰ Menyu</button></div>
+    <div class="mission-tag">● SYNTHETIC CREW MISSION</div>
+    <nav id="mainNav" aria-label="Asosiy bo‘limlar">
+      <a href="#overview" data-primary="overview">▦ &nbsp; Missiya holati</a>
+      <a href="#crew-section" data-primary="crew">♧ &nbsp; Ekipaj va sog‘liq</a>
+      <a href="#shared" data-primary="environment">◇ &nbsp; Muhit va xavflar</a>
+      <a href="#emergency" data-primary="emergency">✚ &nbsp; Favqulodda yordam</a>
+      <a href="#alerts" data-primary="history">≡ &nbsp; Ogohlantirishlar va jurnal <span id="navAlertCount" class="nav-count" aria-label="Faol ogohlantirishlar">0</span></a>
+    </nav>
+    <div class="sidebar-bottom"><span class="eyebrow">STATUS / v0.4.0</span><p>Ko‘p kosmonavtli tahlil<br>Offline ishlash<br>AI yordamchi: <strong id="aiSidebarStatus">TEKSHIRILMOQDA</strong></p></div>
+  </aside>
+
+  <main class="main" id="overview">
+    <header class="topbar">
+      <div><div class="eyebrow">MULTI-CREW • OFFLINE EMERGENCY WORKFLOWS / SIMULATION</div>
+        <h1 id="pageTitle" tabindex="-1">Missiya holati</h1>
+        <p class="muted" id="pageDescription">Kosmonavtlar, kabina muhiti va tibbiy yordam jarayonini birgalikda kuzatish</p><a class="jump-emergency" href="#emergency">✚ Favqulodda yordam markazini ochish</a>
+      </div>
+      <div class="header-right"><span id="globalRisk" class="pill risk-pill" role="status" aria-live="polite">XAVF: YUKLANMOQDA</span><span id="connectionTag" class="pill">● Yuklanmoqda…</span><span id="lastSeen" class="timestamp">—</span></div>
+    </header>
+    <div class="simulation-banner"><b>⚠ FAQAT SIMULYATSIYA</b><span>Qoidalar tibbiy tasdiqlanmagan. Dastur tashxis qo‘ymaydi, davolash ko‘rsatmasi bermaydi va kosmik kemani boshqarmaydi.</span></div>
+
+    <div class="workspace-tools">
+      <label for="selectedCrew">Tanlangan kosmonavt</label>
+      <select id="selectedCrew" aria-label="Kuzatilayotgan kosmonavt"><option>Yuklanmoqda…</option></select>
+      <span class="workspace-hint">Bo‘limlar faqat ochilganda yangilanadi · server monitoringi davom etadi</span>
+    </div>
+    <nav id="subNav" class="sub-navigation" aria-label="Ichki bo‘limlar" hidden></nav>
+    <section class="controls-strip" data-view="overview" aria-label="Sinov boshqaruvi">
+      <label class="control">Missiya ssenariysi <select id="scenario"><option>Yuklanmoqda…</option></select></label>
+      <label class="control">Tanlangan a’zoning alomati <select id="manualSymptom"><option value="">Alomat yo‘q</option></select></label>
+      <div class="control control-actions"><span>Aloqa / vaqt</span><div class="action-pair"><button id="toggleLink" class="button">Aloqani o‘zgartirish</button><button id="forceStep" class="button">↻ Namuna</button></div></div>
+    </section>
+
+    <section class="status-strip" data-view="overview" aria-label="Missiya ko‘rsatkichlari">
+      <article class="status-card"><div class="mini">MISSIYA XAVF DARAJASI</div><div id="overall" class="status-main">—</div><small id="statusSub">DEMO tekshirish</small></article>
+      <article class="status-card"><div class="mini">EKIPAJ A’ZOLARI</div><div id="crewCount" class="status-main">—</div><small>Har biri alohida tahlilda</small></article>
+      <article class="status-card"><div class="mini">UMUMIY TOPILMALAR</div><div id="sharedCount" class="status-main">—</div><small>Sabab: tasdiqlanmagan</small></article>
+      <article class="status-card"><div class="mini">YER BILAN ALOQA</div><div id="earthLinkText" class="status-main">—</div><small>Simulyatsiya · real radio yo‘q</small></article>
+      <article class="status-card"><div class="mini">LOKAL XABAR NAVBATI</div><div id="outboxCount" class="status-main">—</div><small>Haqiqiy uzatish yo‘q</small></article>
+    </section>
+
+    <section class="section" id="crew-section" data-view="crew-section" hidden>
+      <div class="section-head"><div><div class="eyebrow">CREW INDIVIDUAL HEALTH</div><h2>Ekipaj holati</h2></div><span class="subtag">Har bir a’zoning alohida ko‘rsatkichlari</span></div>
+      <div id="crewGrid" class="crew-grid"></div>
+      <form id="crewAddForm" class="crew-form">
+        <label>Yangi ekipaj a’zosi <input id="newCrewName" placeholder="Ism yoki kod (DEMO)" required maxlength="60" /></label>
+        <label>Modul <select id="newCrewZone"><option value="HAB">HAB · Yashash</option><option value="LAB">LAB · Laboratoriya</option></select></label>
+        <button type="submit" class="button primary">+ Ekipajga qo‘shish</button>
+        <button type="button" id="removeCrew" class="button danger-outline">Tanlanganni chiqarish</button>
+      </form>
+    </section>
+
+    <section class="section" id="shared" data-view="shared" hidden>
+      <div class="section-head"><div><div class="eyebrow">CROSS-CREW CORRELATION</div><h2>Umumiy sababni tekshirish</h2></div><span class="subtag">Ekipaj + atmosfera + uskunalar + radiatsiya</span></div>
+      <p class="section-note">Bir nechta ekipaj a’zosida bir xil o‘zgarish kuzatilsa, dastur o‘zaro bog‘liqlikni izlaydi. Bu sababni avtomatik isbotlamaydi.</p>
+      <div id="findingList" class="finding-list"><div class="empty">Tahlil tayyorlanmoqda…</div></div>
+    </section>
+
+    <section class="section" id="individual" data-view="individual" hidden>
+      <div class="section-head"><div><div class="eyebrow">SELECTED CREW MEMBER</div><h2 id="individualTitle">Tibbiy ko‘rsatkichlar</h2></div><span class="subtag" id="individualZone">—</span></div>
+      <div id="vitalGrid" class="metric-grid"></div>
+      <div class="chart-grid">
+        <article class="panel"><div class="section-head"><h3>Puls — individual trend</h3><span class="subtag">oxirgi 60 namuna</span></div><canvas id="hrChart" height="175" aria-label="Puls grafigi"></canvas></article>
+        <article class="panel"><div class="section-head"><h3>SpO₂ — individual trend</h3><span class="subtag">oxirgi 60 namuna</span></div><canvas id="spo2Chart" height="175" aria-label="SpO₂ grafigi"></canvas></article>
+      </div>
+    </section>
+
+    <section class="section" id="zones" data-view="zones" hidden>
+      <div class="section-head"><div><div class="eyebrow">ENVIRONMENT & LIFE SUPPORT</div><h2>Kabina muhiti va uskunalar</h2></div><span class="subtag">Ikki modul · sintetik ma’lumotlar</span></div>
+      <div id="zoneGrid" class="zone-grid"></div>
+      <div class="system-strip" id="systemStrip"></div>
+    </section>
+
+    <section class="section" id="emergency" data-view="emergency" hidden aria-labelledby="emergencyHeading">
+      <div class="section-head"><div><div class="eyebrow">STAGE 3 / OFFLINE CASE MANAGEMENT</div><h2 id="emergencyHeading">Favqulodda yordam markazi</h2></div><span id="caseStats" class="subtag">Hodisalar yuklanmoqda...</span></div>
+      <p class="section-note">Kuzatuv va tekshiruvni bitta hodisa ID bilan yuriting. Bu yerda <strong>faqat DEMO tekshiruv bosqichlari</strong> bor; real davolash protokollari kiritilmagan.</p>
+      <div class="emergency-grid">
+        <article class="panel case-create-panel">
+          <div class="section-head"><h3>Yangi hodisa ochish</h3><span class="mini-pill attention">DEMO</span></div>
+          <form id="incidentForm" class="incident-form">
+            <label class="field-label">Tekshiruv protokoli <select id="incidentProtocol" required></select></label>
+            <label class="field-label">Bog‘liq signal <input id="incidentOrigin" readonly value="MANUAL_REPORT" aria-describedby="originHelp" /></label>
+            <p class="field-help" id="originHelp">Signalni avtomatik kiritish uchun ogohlantirishdagi “Hodisa yaratish”ni bosing.</p>
+            <fieldset class="field-group"><legend>Ta’sirlangan kosmonavtlar</legend><div id="incidentCrewChoices" class="check-grid"></div></fieldset>
+            <fieldset class="field-group"><legend>Ta’sirlangan modullar</legend><div id="incidentZoneChoices" class="check-grid"></div></fieldset>
+            <label class="field-label">Qaydni kiritayotgan ekipaj a’zosi <select id="incidentActor" required></select></label>
+            <label class="field-label">Vaziyat izohi (ixtiyoriy) <textarea id="incidentNote" rows="2" maxlength="1000" placeholder="Kuzatilgan alomat yoki signal haqida qayd..." ></textarea></label>
+            <button class="button primary case-submit" type="submit">+ Hodisa ochish (demo)</button>
+          </form>
+        </article>
+        <article class="panel case-list-panel">
+          <div class="section-head"><h3>Yordam hodisalari</h3><button id="reloadIncidents" type="button" class="button quiet">↻ Yangilash</button></div>
+          <div class="case-list" id="incidentList" aria-live="polite"><div class="empty">Hodisalar yuklanmoqda...</div></div>
+        </article>
+      </div>
+      <article class="panel case-detail-panel" id="caseDetail" aria-live="polite"><div class="empty">Hodisani tanlang yoki yangi hodisa oching.</div></article>
+      <div class="knowledge-grid">
+        <article class="panel"><div class="section-head"><h3>Offline protokollar katalogi</h3><span class="mini-pill attention">TASDIQLANMAGAN</span></div><div id="protocolCatalog" class="protocol-catalog"></div></article>
+        <article class="panel"><div class="section-head"><h3>Bortdagi resurslar</h3><span class="subtag">Sintetik inventar</span></div><div id="resourceList" class="resource-list"></div></article>
+      </div>
+    </section>
+
+    <section class="section journal-section" id="alerts" data-view="alerts" hidden>
+      <article class="panel"><div class="section-head"><div><div class="eyebrow">RULE ENGINE</div><h2>Faol ogohlantirishlar</h2></div><span class="subtag" id="alertsCount">0 ta</span></div><div class="alert-list" id="alertList"></div></article>
+    </section>
+    <section class="section journal-section" id="events" data-view="events" hidden>
+      <article class="panel"><div class="section-head"><div><div class="eyebrow">AUDIT & OFFLINE OUTBOX</div><h2>Hodisalar tarixi</h2></div><span class="subtag">SQLite · lokal</span></div><div class="event-list" id="eventList"></div></article>
+    </section>
+    <footer>AstroMed MVP v0.4.0 · SIMULATION ONLY · NO MEDICAL CERTIFICATION · OFFLINE AI ASSISTANT (DEMO, NOT VALIDATED) · NO REAL EARTH TRANSMISSION</footer>
+  </main>
+</div>
+<aside id="aiPanel" class="ai-panel" aria-labelledby="aiPanelTitle">
+  <div class="ai-head">
+    <div><div class="eyebrow">OFFLINE AI · DEMO</div><h2 id="aiPanelTitle">AI yordamchi</h2></div>
+    <button id="aiCollapse" class="close" type="button" aria-controls="aiPanel" aria-label="AI panelni yig‘ish">⟩</button>
+  </div>
+  <div class="ai-status-row"><span id="aiStatusPill" class="mini-pill unknown" role="status" aria-live="polite">Tekshirilmoqda…</span><button id="aiLoadButton" class="link-button" type="button" hidden>Modelni oldindan yuklash</button></div>
+  <p class="ai-warning">Tibbiy tasdiqlanmagan. Faqat ko‘rib chiqish uchun ehtimoliy sabablarni ko‘rsatadi; tashxis yoki davolash buyrug‘i bermaydi.</p>
+  <label class="ai-label" for="aiRecords">Ekipaj qaydlari <small>(har bir qator — bitta qayd, 12 tagacha)</small></label>
+  <textarea id="aiRecords" rows="7" maxlength="6500" placeholder="Masalan:&#10;A02 bosh aylanishini qayd etdi.&#10;LAB modulida ventilyatsiya o‘chgan paytda shikoyatlar boshlandi."></textarea>
+  <div class="ai-actions">
+    <button id="aiDemo" class="button quiet" type="button">Namuna</button>
+    <button id="aiClear" class="button quiet" type="button">Tozalash</button>
+    <button id="aiRun" class="button primary" type="button">Tahlil qilish</button>
+  </div>
+  <div id="aiProgress" class="ai-progress" hidden><div class="ai-bar"><span id="aiBar"></span></div><small id="aiStage">—</small></div>
+  <div id="aiResult" class="ai-result" aria-live="polite"><div class="empty">Qaydlarni kiriting va “Tahlil qilish”ni bosing.</div></div>
+</aside>
+<button id="aiReopen" class="ai-reopen" type="button" aria-controls="aiPanel" hidden>✦ AI</button>
+<div id="protocolModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="protocolTitle">
+  <div class="modal-box"><div class="modal-header"><div><div class="eyebrow">OFFLINE REVIEW CHECKLIST · DEMO</div><h2 id="protocolTitle">Tekshirish yo‘riqnomasi</h2></div><button id="closeModal" class="close" aria-label="Yopish">✕</button></div>
+    <p class="warning-copy">Tibbiyot mutaxassislari tomonidan parvoz uchun tasdiqlanmagan. Haqiqiy favqulodda vaziyatda ekipajning tasdiqlangan protseduralari qo‘llanadi.</p>
+    <ol id="protocolSteps"></ol><button id="closeModalBottom" class="button">Yopish</button>
+  </div>
+</div>
+<div id="toast" class="toast hidden" role="status"></div>
+</body>
+</html>

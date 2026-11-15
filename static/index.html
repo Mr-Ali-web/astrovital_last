@@ -86,6 +86,15 @@
       <div class="system-strip" id="systemStrip"></div>
     </section>
 
+    <section class="section" id="nasa" data-view="nasa" hidden aria-labelledby="nasaHeading">
+      <div class="section-head"><div><div class="eyebrow">NASA OPEN DATA / REFERENCE ONLY</div><h2 id="nasaHeading">NASA ma’lumotlari</h2></div><span id="nasaStatusTag" class="subtag">Keshdan o‘qilmoqda…</span></div>
+      <p class="section-note">NASA OSDR va DONKI ma’lumotlari Internet bor paytda yuklanadi va <strong>lokal SQLite keshda</strong> saqlanadi; aloqa uzilganda ham ko‘rinadi. Bu <strong>faqat ma’lumot uchun</strong>: tibbiy qoidalarga va xavf darajasiga ta’sir qilmaydi.</p>
+      <div class="nasa-actions"><button id="nasaRefresh" type="button" class="link-button">⟳ NASA’dan yangilash (Internet kerak)</button><span id="nasaRefreshNote" class="muted"></span></div>
+      <article class="panel nasa-advisory"><div class="section-head"><h3>Kosmik ob-havo (DONKI)</h3><span id="nasaAdvisoryPill" class="mini-pill unknown">—</span></div><p id="nasaAdvisoryText" class="muted">—</p></article>
+      <div id="nasaSources" class="nasa-grid"></div>
+      <article class="panel"><div class="section-head"><h3>NASA portallari</h3></div><ul id="nasaPortals" class="nasa-portals"></ul></article>
+    </section>
+
     <section class="section" id="emergency" data-view="emergency" hidden aria-labelledby="emergencyHeading">
       <div class="section-head"><div><div class="eyebrow">STAGE 3 / OFFLINE CASE MANAGEMENT</div><h2 id="emergencyHeading">Favqulodda yordam markazi</h2></div><span id="caseStats" class="subtag">Hodisalar yuklanmoqda...</span></div>
       <p class="section-note">Kuzatuv va tekshiruvni bitta hodisa ID bilan yuriting. Bu yerda <strong>faqat DEMO tekshiruv bosqichlari</strong> bor; real davolash protokollari kiritilmagan.</p>

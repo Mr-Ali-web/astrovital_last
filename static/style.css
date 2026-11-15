@@ -157,3 +157,11 @@ body:not(.ai-open) .ai-panel{display:none}
 .ai-reopen{position:fixed;right:0;top:45%;z-index:4;writing-mode:vertical-rl;padding:14px 8px;border:1px solid #348c83;border-right:0;border-radius:8px 0 0 8px;background:#194740;color:#bffcf1;font-weight:800;cursor:pointer}
 @media(max-width:1100px){.ai-panel{width:320px}body.ai-open .shell{padding-right:320px}}
 @media(max-width:790px){.ai-panel{width:100%;top:auto;max-height:78vh;border-left:0;border-top:1px solid #24405a;box-shadow:0 -10px 30px #0008}body.ai-open .shell{padding-right:0}.ai-reopen{top:auto;bottom:16px;writing-mode:horizontal-tb;border-right:1px solid #348c83;border-radius:20px;right:12px;padding:10px 14px}}
+
+/* NASA reference view (v0.4.1) */
+.nasa-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.nasa-advisory{margin-bottom:12px}
+.nasa-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px}
+.nasa-list,.nasa-portals{margin:10px 0 0;padding-left:18px;font-size:11px;line-height:1.8;color:#b8cad7}
+.nasa-list a,.nasa-portals a{color:#81d3e2;text-decoration:underline}
+@media (max-width:900px){.nasa-grid{grid-template-columns:1fr}}

@@ -19,6 +19,7 @@ from .incidents import IncidentError, IncidentConflict
 from .sources import SCENARIOS, ZONES
 from .rules import SYMPTOM_LABELS
 from .ai_engine import AIEngine, JobManager, MAX_RECORDS
+from .nasa import NasaReference
 
 ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = os.getenv("ASTRO_DB_PATH", str(ROOT / "data" / "telemetry.sqlite3"))
@@ -65,8 +66,9 @@ class CrewRequest(BaseModel):
     zone_id: str
 
 
-def create_app(db_path: str | Path | None = None, background: bool = True, ai_engine=None) -> FastAPI:
+def create_app(db_path: str | Path | None = None, background: bool = True, ai_engine=None, nasa_fetcher=None) -> FastAPI:
     service = MonitoringService(Database(db_path or DB_PATH))
+    nasa = NasaReference(str(db_path or DB_PATH), fetcher=nasa_fetcher)
     engine = ai_engine or AIEngine()
     jobs = JobManager(engine)
 
@@ -101,6 +103,17 @@ def create_app(db_path: str | Path | None = None, background: bool = True, ai_en
     def health():
         return {"ok": True, "mode": "SIMULATION_ONLY", "ai_model_enabled": engine.available,
                 "medical_approval": "NOT_VALIDATED", "clinical_workflow": "DEMO_ONLY"}
+
+    @app.get("/api/nasa/status")
+    def nasa_status():
+        # Cache only: works fully offline and never touches the network.
+        return nasa.status()
+
+    @app.post("/api/nasa/refresh")
+    def nasa_refresh():
+        # Sync endpoint runs in a worker thread, so monitoring keeps running.
+        outcome = nasa.refresh()
+        return {"result": outcome, **nasa.status()}
 
     @app.get("/api/status")
     def status():

@@ -4,6 +4,20 @@
 
 > **MUHIM XAVFSIZLIK CHEKLOVI:** Bu **faqat simulyatsiya va dasturiy sinov**. Tibbiy me’yorlar, ogohlantirish qoidalari va barcha protokollar klinik/operatsion jihatdan **tasdiqlanmagan**. Dastur haqiqiy kosmonavtga tashxis, dori dozasi, davolash buyrug‘i yoki kosmik kema uskunalarini boshqarish buyruqlarini bermaydi. Haqiqiy yordam o‘rniga ishlatish mumkin emas. Ixtiyoriy **offline AI yordamchi** faqat DEMO: tibbiy tasdiqlanmagan.
 
+## v0.4.1: NASA ma’lumotlari (faqat ma’lumot uchun, offline-first)
+
+Yangi **Muhit va xavflar → NASA ma’lumotlari** bo‘limi. Internet bor paytda **“NASA’dan yangilash”** bosiladi, natija lokal SQLite keshga yoziladi va aloqa uzilganda ham ko‘rinadi.
+
+| Manba | Nima uchun | Kalit |
+|---|---|---|
+| NASA OSDR Search API | radiatsiya, mikrogravitatsiya va kabina muhiti bo‘yicha kosmik biologiya tadqiqotlari | kerak emas |
+| NASA DONKI (SEP, FLR) | so‘nggi 30 kundagi quyosh zarralari va alangalari; 72 soatlik kosmik ob-havo eslatmasi | api.nasa.gov (`NASA_API_KEY`, yo‘q bo‘lsa `DEMO_KEY`) |
+| OSDR RadLab, EDA | radiatsiya dozimetriyasi va ISS kabina telemetriyasi — portal havolalari sifatida | — |
+
+API: `GET /api/nasa/status` (faqat kesh, tarmoqsiz), `POST /api/nasa/refresh` (tarmoqqa chiqadi, xatoda eski keshni saqlaydi).
+
+**Xavfsizlik chegarasi:** NASA ma’lumotlari tibbiy qoidalarga, xavf darajasiga va AI tahlilga **ta’sir qilmaydi**; faqat ma’lumot va havola. `astro_medical/nasa.py`.
+
 ## v0.4.0: Offline AI yordamchi (DEMO)
 
 Ekranning **o‘ng tomonida** har qanday menyu ochilganda ham ko‘rinib turadigan **AI yordamchi** paneli qo‘shildi. Unga ekipaj qaydlarini (har bir qator — bitta qayd) yozasiz, model har bir qaydni tahlil qilib, 4 ta ehtimoliy sabab bo‘yicha holat chiqaradi: **kabina muhiti, ovqat/suv, sensor xatosi, parvoz/faoliyat** (ehtimoliy / rad etilgan / ma’lumot yo‘q) va ko‘rib chiqish uchun tavsiya beradi.
@@ -149,4 +163,3 @@ Yangi versiya ZIP ichida **bo‘sh `data/` papka** bilan beriladi. Eski versiyad
 ## Test natijasi
 
 43 ta avtomatik test (3-bosqich API, audit, crew snapshots, offline outbox, status cheklovlari, oldingi multi-crew monitoring) muvaffaqiyatli. Interfeys 1440/820/390 px kengliklarda brauzer renderi, gorizontal overflow va JS xato tekshiruvidan o‘tdi. Mobil interfeysda hodisa yaratish va qadam holatini o‘zgartirish real lokal APIga ulanadigan brauzer sinov ko‘prigi orqali sinovdan o‘tgan.
-# astrovital_last

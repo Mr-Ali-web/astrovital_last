@@ -22,7 +22,7 @@ let viewLoadEpoch = 0;
 let refreshTimer = null;
 const viewGroups = {
   overview: 'overview', 'crew-section':'crew', individual:'crew',
-  shared:'environment', zones:'environment', emergency:'emergency',
+  shared:'environment', zones:'environment', nasa:'environment', emergency:'emergency',
   alerts:'history', events:'history'
 };
 const viewDetails = {
@@ -31,13 +31,14 @@ const viewDetails = {
   individual:['Tibbiy ko‘rsatkichlar','Tanlangan kosmonavtning individual trendlari'],
   shared:['Umumiy sababni tekshirish','Ekipaj, kabina va texnik holatlarning kesishma tahlili'],
   zones:['Kabina modullari','HAB/LAB atmosferasi va uskunalari'],
+  nasa:['NASA ma’lumotlari','NASA OSDR va DONKI ma’lumotlari (faqat ma’lumot uchun, offline kesh)'],
   emergency:['Favqulodda yordam','DEMO protokollar va lokal hodisalar boshqaruvi'],
   alerts:['Faol ogohlantirishlar','Sensor va tahlil qoidalari yaratgan signal va ogohlantirishlar'],
   events:['Hodisalar tarixi','SQLite jurnali va kosmonavt ismlari']
 };
 const groupTabs = {
   crew: [['crew-section','Ekipaj ro‘yxati'],['individual','Tibbiy ko‘rsatkichlar']],
-  environment: [['shared','Umumiy sabab'],['zones','Kabina va uskunalar']],
+  environment: [['shared','Umumiy sabab'],['zones','Kabina va uskunalar'],['nasa','NASA ma’lumotlari']],
   history: [['alerts','Ogohlantirishlar'],['events','Hodisalar tarixi']]
 };
 
@@ -210,6 +211,38 @@ function updateOverview(status) {
   $("outboxCount").textContent=String(status.pending_outbox);
   $("toggleLink").textContent=status.earth_link ? "Aloqani uzish" : "Aloqani tiklash";
 }
+function renderNasa(data) {
+  const adv=data.advisory||{};
+  const pills={unknown:'unknown',none_recent:'ok',recent_events:'attention'};
+  $('nasaAdvisoryPill').className='mini-pill '+(pills[adv.state]||'unknown');
+  $('nasaAdvisoryPill').textContent={unknown:'MA’LUMOT YO‘Q',none_recent:'HODISA YO‘Q',recent_events:'HODISA BOR'}[adv.state]||'—';
+  $('nasaAdvisoryText').textContent=adv.message||'';
+  const cachedCount=data.sources.filter(s=>s.cached).length;
+  $('nasaStatusTag').textContent=`${cachedCount}/${data.sources.length} manba keshda`;
+  $('nasaSources').innerHTML=data.sources.map(src=>{
+    const items=(src.items||[]).slice(0,5).map(i=>{
+      const label=esc([i.accession||i.id,i.title||i.time].filter(Boolean).join(' · '));
+      return i.link?`<li><a href="${esc(i.link)}" target="_blank" rel="noopener noreferrer">${label}</a></li>`:`<li>${label}</li>`;
+    }).join('');
+    const meta=src.cached?`Yangilangan: ${esc(src.fetched_at)} · jami: ${esc(src.total ?? '—')}`:'Hali yuklanmagan';
+    const err=src.last_error?`<p class="muted">Oxirgi urinish xato: ${esc(src.last_error)}</p>`:'';
+    return `<article class="panel"><div class="section-head"><h3>${esc(src.title)}</h3></div><p class="muted">${meta}</p><ul class="nasa-list">${items||'<li class="muted">Ma’lumot yo‘q</li>'}</ul>${err}</article>`;
+  }).join('');
+  $('nasaPortals').innerHTML=data.portals.map(p=>`<li><a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer">${esc(p.name)}</a> <span class="muted">— ${esc(p.note)}</span></li>`).join('');
+}
+async function refreshNasa() {
+  const button=$('nasaRefresh');
+  button.disabled=true; $('nasaRefreshNote').textContent='Yuklanmoqda…';
+  try{
+    const data=await api('/api/nasa/refresh','POST');
+    const failed=Object.values(data.result).filter(v=>v!=='ok').length;
+    $('nasaRefreshNote').textContent=failed?`${failed} ta manba yuklanmadi (Internet yo‘q yoki NASA javob bermadi). Eski kesh saqlandi.`:'Yangilandi.';
+    renderNasa(data);
+  }catch(err){
+    $('nasaRefreshNote').textContent='Yangilab bo‘lmadi: '+err.message;
+  }finally{ button.disabled=false; }
+}
+document.addEventListener('DOMContentLoaded',()=>{ const b=$('nasaRefresh'); if(b) b.addEventListener('click',refreshNasa); });
 async function renderActiveView(status) {
   const view=activeView;
   const epoch=++viewLoadEpoch;
@@ -227,6 +260,11 @@ async function renderActiveView(status) {
     }
     case 'shared': renderFindings(status.shared_findings); break;
     case 'zones': renderZones(status.zones,status.mission.systems); break;
+    case 'nasa': {
+      const nasa=await api('/api/nasa/status');
+      if(view===activeView && epoch===viewLoadEpoch) renderNasa(nasa);
+      break;
+    }
     case 'alerts': renderAlerts(status.active_alerts); break;
     case 'events': {
       const events=await api('/api/events?limit=24');
